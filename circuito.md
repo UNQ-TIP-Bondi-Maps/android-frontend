@@ -11,8 +11,8 @@ La idea de la aplicación surgió de esos días que nos tuvimos que quedar más 
 ### Del lado de los usuarios
 
 * El usuario ingresa a la aplicación logueandose con su cuenta de gmail o facebook.
-* En la aplicación visualiza el mapa del lugar en donde se encuentra, en ese momento la aplicación le pedirá establecer “su parada”. La aplicación le preguntará si quiere utilizar su ubicación actual para ello, si no es así y se desea otra ubicación la misma podrá ser elegida clickeando en el mapa o ingresando manualmente la calle y altura correspondiente.
-* En ese momento el sistema mostrará las líneas de colectivos que pasan por esa parada o algún punto cercano y el usuario deberá elegir cuál o cuáles le interesan seleccionandolas de una lista.
+* En la aplicación visualiza el mapa del lugar en donde se encuentra, en ese momento la se pedirá establecer el destino del viaje.
+* En ese momento el sistema mostrará las líneas de colectivos que van hacia ese destino y su parada mas cercana. El usuario deberá elegir cuál o cuáles le interesan seleccionandolas.
 * Luego el usuario podrá observar en el mapa la ubicación del colectivo más cercano de cada línea que seleccionó así como también el recorrido de los mismos y el tiempo estimado para arribar a la parada.
 
 
