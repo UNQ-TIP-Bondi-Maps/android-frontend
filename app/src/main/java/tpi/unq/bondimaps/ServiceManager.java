@@ -1,4 +1,4 @@
-package unq.tpi.bondimaps;
+package tpi.unq.bondimaps;
 
 import android.app.Activity;
 import android.content.Context;

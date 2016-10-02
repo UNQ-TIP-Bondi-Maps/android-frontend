@@ -1,4 +1,4 @@
-package unq.tpi.bondimaps;
+package tpi.unq.bondimaps;
 
 import android.Manifest;
 import android.content.IntentSender;
@@ -156,7 +156,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         protected Void doInBackground(Void... params) {
             while (!isCancelled()) {
                 Log.i("BusesLocator: ", "Start doInBackground");
-                String url = "http://192.168.1.48:8080/backend/rest/buses/1";
+                String url = "http://PUBLIC-IP:8080/backend/rest/buses/1";
                 JSONObject buses = null;
                 try {
                     buses = serviceManager.getResource(url);
