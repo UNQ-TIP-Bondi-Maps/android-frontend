@@ -24,8 +24,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
 
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -162,11 +167,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     buses = serviceManager.getResource(url);
                     JSONObject position = buses.getJSONObject("position");
                     String dirOfTravel = buses.getString("directionOfTravel");
+                    String routeWay = buses.getString("routeWay");
                     double busLat = position.getDouble("lat");
                     double busLng = position.getDouble("lng");
                     busUpdated.setLat(busLat);
                     busUpdated.setLng(busLng);
                     busUpdated.setDirectionOfTravel(dirOfTravel);
+                    busUpdated.setRouteWay(routeWay);
                     Log.i("busPosition ", " - lat: " + busLat + " lng: " + busLng + " .DirOfTravel :" + dirOfTravel);
                     publishProgress();
                     Thread.sleep(3000);
@@ -179,6 +186,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         protected void onProgressUpdate(Void... params) {
+            List<LatLng> routeCoordinates = PolyUtil.decode(busUpdated.getRouteWay());
+            PolylineOptions routePolyline = new PolylineOptions()
+                    .addAll(routeCoordinates)
+                    .clickable(false);
             LatLng newPos = new LatLng(this.busUpdated.getLat(), this.busUpdated.getLng());
             googleMap.clear();
             bus = new MarkerOptions()
@@ -189,6 +200,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     .position(new LatLng(-34.688357, -58.318622));
             googleMap.addMarker(myPosition);
             googleMap.addMarker(bus);
+            googleMap.addPolyline(routePolyline);
             Log.i("onProgressUpdate - ", "finish ");
         }
 

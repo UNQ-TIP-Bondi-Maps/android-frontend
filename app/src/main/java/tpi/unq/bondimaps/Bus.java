@@ -5,6 +5,8 @@ public class Bus{
     private double lat;
     private double lng;
     private String directionOfTravel;
+    private String routeWay;
+    private String routeBack;
 
     public double getLat() {
         return lat;
@@ -31,4 +33,19 @@ public class Bus{
     }
 
 
+    public String getRouteWay() {
+        return routeWay;
+    }
+
+    public void setRouteWay(String routeWay) {
+        this.routeWay = routeWay;
+    }
+
+    public String getRouteBack() {
+        return routeBack;
+    }
+
+    public void setRouteBack(String routeBack) {
+        this.routeBack = routeBack;
+    }
 }
