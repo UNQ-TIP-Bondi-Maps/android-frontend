@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1018942519796",
+    "project_id": "clean-road-145803"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1018942519796:android:4ae272c20031e07f",
+        "android_client_info": {
+          "package_name": "tpi.unq.bondimaps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1018942519796-02nteb6qs9ac65114q0qa78p7s2lk0ua.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "tpi.unq.bondimaps",
+            "certificate_hash": "168D90D3BCE0008C59A05883A053D4302A0BFF2B"
+          }
+        },
+        {
+          "client_id": "1018942519796-dicfs66ak538b3ue7oicpj3ecn7dmrrg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZw1NkRh7tRl6A0XGLzTPU1jCk6Th2u1c"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
