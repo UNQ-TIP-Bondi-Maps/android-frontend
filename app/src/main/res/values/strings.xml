@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Bondi Maps</string>
+    <string name="title_place_list">Mis Lugares</string>
+    <string name="title_place_detail">Detalle del lugar</string>
+    <string name="title_activity_add_place">Agregar Lugar</string>
+    <string name="title_activity_main2">Main2Activity</string>
 </resources>

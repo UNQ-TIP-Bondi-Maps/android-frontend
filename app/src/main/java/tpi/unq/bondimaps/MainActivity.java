@@ -1,6 +1,7 @@
 package tpi.unq.bondimaps;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -8,9 +9,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -24,7 +27,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
@@ -66,6 +68,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         serviceManager = new ServiceManager(this);
         locator = new BusesLocator();
         locator.execute();
+        FloatingActionButton myPlacesButton = (FloatingActionButton) findViewById(R.id.my_places_button);
+        myPlacesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PlaceListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -161,7 +172,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         protected Void doInBackground(Void... params) {
             while (!isCancelled()) {
                 Log.i("BusesLocator: ", "Start doInBackground");
-                String url = "http://PUBLIC-IP:8080/backend/rest/buses/1";
+                String url = "http://PUBLIC_IP/backend/rest/buses/1";
                 JSONObject buses = null;
                 try {
                     buses = serviceManager.getResource(url);
