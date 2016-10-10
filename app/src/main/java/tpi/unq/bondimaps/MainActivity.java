@@ -47,11 +47,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public ServiceManager serviceManager;
     public MarkerOptions bus;
     public BusesLocator locator;
+    public String serverIp;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        serverIp = (String) getIntent().getExtras().get("ipBack");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -172,7 +174,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         protected Void doInBackground(Void... params) {
             while (!isCancelled()) {
                 Log.i("BusesLocator: ", "Start doInBackground");
-                String url = "http://PUBLIC_IP/backend/rest/buses/1";
+                String url = "http://" + serverIp+ ":8080/backend/rest/buses/1";
                 JSONObject buses = null;
                 try {
                     buses = serviceManager.getResource(url);

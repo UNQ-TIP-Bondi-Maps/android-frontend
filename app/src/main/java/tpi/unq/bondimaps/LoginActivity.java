@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.EditText;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -22,6 +23,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
     CallbackManager callbackManager;
     LoginButton facebook;
+    EditText serverIp;
 
     SignInButton google;
     private static final int RC_SIGN_IN = 9001;
@@ -29,6 +31,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
     public void launchMap() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("ipBack", serverIp.getText().toString());
         startActivity(intent);
     }
 
@@ -41,6 +44,8 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         callbackManager = CallbackManager.Factory.create();
         setContentView(R.layout.activity_login);
         facebook = (LoginButton) this.findViewById(R.id.login_button);
+        serverIp = (EditText)findViewById(R.id.server_ip);
+
         facebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
 
             @Override

@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="#FF00">
+    android:background="#E6E6E6">
 
     <com.facebook.login.widget.LoginButton
         android:id="@+id/login_button"
@@ -16,5 +16,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="245dp"
         android:layout_marginLeft="100dp"/>
+
+    <EditText
+        android:hint="ip server"
+        android:id="@+id/server_ip"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"/>
 
 </RelativeLayout>
