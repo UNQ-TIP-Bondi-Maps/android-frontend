@@ -57,6 +57,9 @@
             android:name=".AddPlaceActivity"
             android:label="@string/title_activity_add_place"
             android:process=":AddPlaceMapProcess"></activity>
+        <activity
+            android:name=".SelectDestinyActivity"
+            android:label="Seleccioná las líneas que querés ver" />
     </application>
 
 </manifest>
