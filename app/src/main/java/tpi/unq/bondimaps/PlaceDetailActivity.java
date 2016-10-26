@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+import android.widget.Button;
 
 /**
  * An activity representing a single Place detail screen. This
@@ -18,6 +19,8 @@ import android.view.MenuItem;
  * in a {@link PlaceListActivity}.
  */
 public class PlaceDetailActivity extends AppCompatActivity {
+
+    Button buttonDestiny;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,15 @@ public class PlaceDetailActivity extends AppCompatActivity {
                     .add(R.id.place_detail_container, fragment)
                     .commit();
         }
+
+        buttonDestiny = (Button) findViewById(R.id.button_destiny);
+        buttonDestiny.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(PlaceDetailActivity.this, SelectDestinyActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
     @Override

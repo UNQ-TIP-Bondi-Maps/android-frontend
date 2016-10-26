@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent" android:background="#E6E6E6">
+
+<CheckBox
+    android:id="@+id/buses_checkBox"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent"
+    android:layout_alignParentLeft="true"
+    android:layout_centerVertical="true"
+    android:checked="false"/>
+
+<TextView
+    android:id="@+id/buses_checkBox_text"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBottom="@+id/buses_checkBox"
+    android:layout_toRightOf="@+id/buses_checkBox"
+    android:textAppearance="?android:attr/textAppearanceLarge"
+    android:textColor="@android:color/black" />
+
+</RelativeLayout>
