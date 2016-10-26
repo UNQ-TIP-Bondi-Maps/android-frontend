@@ -30,8 +30,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -45,7 +47,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker currLocationMarker = null;
     private Location lastLocation;
     public ServiceManager serviceManager;
-    public MarkerOptions bus;
+    public int linesToDestiny;
     public BusesLocator locator;
     public String serverIp;
 
@@ -67,15 +69,28 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(10 * 1000)        // 10 seconds, in milliseconds
                 .setFastestInterval(1 * 1000); // 1 second, in milliseconds
+        linesToDestiny = 0;
         serviceManager = new ServiceManager(this);
         locator = new BusesLocator();
         locator.execute();
+        //My places button
         FloatingActionButton myPlacesButton = (FloatingActionButton) findViewById(R.id.my_places_button);
         myPlacesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, PlaceListActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+        //My destiny button
+        FloatingActionButton myDestinyButton = (FloatingActionButton) findViewById(R.id.my_destiny_button);
+        myDestinyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SelectDestinyActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("ipBack", serverIp);
                 startActivity(intent);
             }
         });
@@ -132,7 +147,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         if (googleApiClient.isConnected())
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
         googleApiClient.disconnect();
-        locator.cancel(false);
+        //locator.cancel(false);
     }
 
     @Override
@@ -163,57 +178,101 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private class BusesLocator extends AsyncTask<Void, Void, Void> {
 
-        private Bus busUpdated;
+        private List<Bus> busesUpdated;
+        private int busesToAdd = 0;
 
         @Override
         protected void onPreExecute() {
-            this.busUpdated = new Bus();
+            this.busesUpdated = new ArrayList<Bus>();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-            while (!isCancelled()) {
-                Log.i("BusesLocator: ", "Start doInBackground");
-                String url = "http://" + serverIp+ ":8080/backend/rest/buses/1";
-                JSONObject buses = null;
-                try {
-                    buses = serviceManager.getResource(url);
-                    JSONObject position = buses.getJSONObject("position");
-                    String dirOfTravel = buses.getString("directionOfTravel");
-                    String routeWay = buses.getString("routeWay");
-                    double busLat = position.getDouble("lat");
-                    double busLng = position.getDouble("lng");
-                    busUpdated.setLat(busLat);
-                    busUpdated.setLng(busLng);
-                    busUpdated.setDirectionOfTravel(dirOfTravel);
-                    busUpdated.setRouteWay(routeWay);
-                    Log.i("busPosition ", " - lat: " + busLat + " lng: " + busLng + " .DirOfTravel :" + dirOfTravel);
-                    publishProgress();
-                    Thread.sleep(3000);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            this.busesUpdated.clear();
+            serverIp = (String) getIntent().getExtras().get("ipBack");
+            if(getIntent().getExtras().get("linesSize")!= null) {
+                linesToDestiny = (int) getIntent().getExtras().get("linesSize");
+                if (linesToDestiny > 0) {
+                    String linesPath = "";
+                    for(int i = 0; i < linesToDestiny; i++) {
+                        String aLineString = (String) getIntent().getExtras().get("line"+i);
+                        if (i==linesToDestiny-1) {
+                            linesPath = linesPath + aLineString;
+                        } else {
+                            linesPath = linesPath + aLineString + "&";
+                        }
+                        Log.i("line pat elem: " , aLineString + " partial lp: " +linesPath);
+                    }
+                    while (!isCancelled()) {
+                        Log.i("BusesLocator: ", "Start doInBackground");
+                        String url = "http://" + serverIp + ":8080/backend/rest/busLines/lines/" + linesPath + "/buses";
+                        Log.i("url locator: ", url);
+                        JSONArray busArray;
+                        try {
+                            busArray = serviceManager.getListResource(url);
+                            busesToAdd = busArray.length();
+                            for (int i = 0; i < this.busesToAdd; i++) {
+                                JSONObject buses = busArray.getJSONObject(i);
+                                JSONObject position = buses.getJSONObject("position");
+                                String dirOfTravel = buses.getString("directionOfTravel");
+                                String routeWay = buses.getString("routeWay");
+                                double busLat = position.getDouble("lat");
+                                double busLng = position.getDouble("lng");
+
+                                Bus busToAdd = new Bus();
+                                busToAdd.setLat(busLat);
+                                busToAdd.setLng(busLng);
+                                busToAdd.setDirectionOfTravel(dirOfTravel);
+                                busToAdd.setRouteWay(routeWay);
+                                this.busesUpdated.add(busToAdd);
+                                Log.i("busPosition ", " - lat: " + busLat + " lng: " + busLng + " .DirOfTravel :" + dirOfTravel);
+                            }
+                            try {
+                                Thread.sleep(3000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            publishProgress();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
+            }
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
             return null;
         }
 
         @Override
         protected void onProgressUpdate(Void... params) {
-            List<LatLng> routeCoordinates = PolyUtil.decode(busUpdated.getRouteWay());
-            PolylineOptions routePolyline = new PolylineOptions()
-                    .addAll(routeCoordinates)
-                    .clickable(false);
-            LatLng newPos = new LatLng(this.busUpdated.getLat(), this.busUpdated.getLng());
             googleMap.clear();
-            bus = new MarkerOptions()
-                    .position(newPos)
-                    .title(this.busUpdated.getDirectionOfTravel());
-           //TODO : get myPosition in a different way
+            if(busesUpdated != null && busesUpdated.size() > 0) {
+                for (int i = 0; i < this.busesUpdated.size(); i++) {
+                    LatLng newPos = new LatLng(this.busesUpdated.get(i).getLat(), this.busesUpdated.get(i).getLng());
+                    MarkerOptions aBus = new MarkerOptions()
+                            .position(newPos)
+                            .title(this.busesUpdated.get(i).getDirectionOfTravel());
+                    googleMap.addMarker(aBus);
+                    if(this.busesUpdated.get(i).getDirectionOfTravel().equals("Once - Wilde")) {
+                        List<LatLng> routeCoordinates = PolyUtil.decode(this.busesUpdated.get(i).getRouteWay());
+                        PolylineOptions routePolyline = new PolylineOptions()
+                                .addAll(routeCoordinates)
+                                .clickable(false);
+                        googleMap.addPolyline(routePolyline);
+                    }
+                }
+            }
+            else{
+                Log.i("onProgressUpdate - ", "finish with no results");
+            }
+            //TODO get my position in a different way
             MarkerOptions myPosition = new MarkerOptions()
-                    .position(new LatLng(-34.688357, -58.318622));
+                    .position(new LatLng(-34.706453, -58.278560));
             googleMap.addMarker(myPosition);
-            googleMap.addMarker(bus);
-            googleMap.addPolyline(routePolyline);
             Log.i("onProgressUpdate - ", "finish ");
         }
 

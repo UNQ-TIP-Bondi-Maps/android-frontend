@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="blueButtons">#0077FF</color>
     <color name="cancelButton">#dc0000</color>
+    <color name="greenButtons">#01DF01</color>
 </resources>

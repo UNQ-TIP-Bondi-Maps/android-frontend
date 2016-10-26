@@ -15,4 +15,15 @@
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/my_places"
         app:backgroundTint="@color/blueButtons"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/my_destiny_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/my_places"
+        app:backgroundTint="@color/greenButtons"/>
+
 </fragment>
