@@ -1,6 +1,5 @@
 package tpi.unq.bondimaps;
 
-
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +7,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -25,7 +23,7 @@ public class SelectDestinyActivity extends ListActivity {
 
     public ServiceManager serviceManager;
     public String serverIp;
-    public int linesToAdd;
+    public List<String> linesToAdd;
     public List<String> lines;
     public List<String> linesIds;
     private SeekBar blocksBar;
@@ -42,7 +40,8 @@ public class SelectDestinyActivity extends ListActivity {
         serviceManager = new ServiceManager(this);
         lines = new ArrayList<>();
         linesIds = new ArrayList<>();
-        serverIp = (String) getIntent().getExtras().get("ipBack");
+        linesToAdd = new ArrayList<>();
+        serverIp = ((Global)getApplicationContext()).getIpServer();
 
         blocksText.setText("Cuadras a caminar: " + blocksBar.getProgress() + "/" + blocksBar.getMax());
 
@@ -73,14 +72,13 @@ public class SelectDestinyActivity extends ListActivity {
 
         try {
             linesArray = serviceManager.getListResource(url);
-            linesToAdd = linesArray.length();
-            for(int i=0; i<this.linesToAdd; i++) {
+            for(int i=0; i<linesArray.length(); i++) {
                 JSONObject aLine = linesArray.getJSONObject(i);
                 int numLine = aLine.getInt("line");
                 String idLine = String.valueOf(aLine.getInt("id"));
                 Log.i("A bus line ", " - id: " + idLine + " numLine: " + numLine);
                 lines.add("Línea " + numLine);
-               // linesIds.add(idLine);
+                linesIds.add(idLine);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,11 +98,10 @@ public class SelectDestinyActivity extends ListActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(SelectDestinyActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                for(int i = 0; i < linesIds.size(); i++) {
-                    intent.putExtra("line"+i, linesIds.get(i));
+                for(int i = 0; i < linesToAdd.size(); i++) {
+                    intent.putExtra("line"+i, linesToAdd.get(i));
                 }
-                intent.putExtra("linesSize", linesIds.size());
-                intent.putExtra("ipBack", serverIp);
+                intent.putExtra("linesSize", linesToAdd.size());
                 startActivity(intent);
             }
         });
@@ -112,21 +109,18 @@ public class SelectDestinyActivity extends ListActivity {
 
     public void onListItemClick(ListView parent, View v,int position,long id){
         CheckedTextView item = (CheckedTextView) v;
-        String lineNumber = lines.get(position).substring(6);
+        String lineNumber = linesIds.get(position);
         if(item.isChecked()) {
-            linesIds.add(lineNumber);
+            linesToAdd.add(lineNumber);
         }
         else{
-            if(linesIds.contains(lineNumber)) {
-                linesIds.remove(lineNumber);
+            if(linesToAdd.contains(lineNumber)) {
+                linesToAdd.remove(lineNumber);
             }
         }
-        Toast.makeText(this, lines.toArray()[position] + " checked : " +
-                item.isChecked(), Toast.LENGTH_SHORT).show();
     }
 
 }
-
 
 
 

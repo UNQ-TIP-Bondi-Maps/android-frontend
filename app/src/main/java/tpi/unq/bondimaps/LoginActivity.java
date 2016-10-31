@@ -31,6 +31,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
     public void launchMap() {
         Intent intent = new Intent(this, MainActivity.class);
+        ((Global)getApplicationContext()).setIpServer(serverIp.getText().toString());
         intent.putExtra("ipBack", serverIp.getText().toString());
         startActivity(intent);
     }

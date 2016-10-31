@@ -24,6 +24,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -50,12 +51,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public int linesToDestiny;
     public BusesLocator locator;
     public String serverIp;
+    private List<Bus> busesUpdated;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        serverIp = (String) getIntent().getExtras().get("ipBack");
+        serverIp = ((Global)getApplicationContext()).getIpServer();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -70,14 +72,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .setInterval(10 * 1000)        // 10 seconds, in milliseconds
                 .setFastestInterval(1 * 1000); // 1 second, in milliseconds
         linesToDestiny = 0;
+        busesUpdated = new ArrayList<>();
         serviceManager = new ServiceManager(this);
-        locator = new BusesLocator();
-        locator.execute();
+        // locator.execute();
         //My places button
         FloatingActionButton myPlacesButton = (FloatingActionButton) findViewById(R.id.my_places_button);
         myPlacesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                locator.cancel(true);
                 Intent intent = new Intent(MainActivity.this, PlaceListActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
@@ -88,9 +91,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         myDestinyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                locator.cancel(true);
                 Intent intent = new Intent(MainActivity.this, SelectDestinyActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.putExtra("ipBack", serverIp);
                 startActivity(intent);
             }
         });
@@ -139,6 +142,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onResume();
         //setUpIfNeeded();
         googleApiClient.connect();
+        locator = new BusesLocator();
+        locator.execute();
     }
 
     @Override
@@ -147,7 +152,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         if (googleApiClient.isConnected())
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
         googleApiClient.disconnect();
-        //locator.cancel(false);
+        locator.cancel(true);
     }
 
     @Override
@@ -167,6 +172,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    @Override
+    protected void onStop() {
+        locator.cancel(true);
+        super.onStop();
+    }
+
     private void handleNewLocation(Location location) {
         LatLng lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions options = new MarkerOptions()
@@ -178,18 +189,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private class BusesLocator extends AsyncTask<Void, Void, Void> {
 
-        private List<Bus> busesUpdated;
         private int busesToAdd = 0;
 
         @Override
         protected void onPreExecute() {
-            this.busesUpdated = new ArrayList<Bus>();
+
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-            this.busesUpdated.clear();
-            serverIp = (String) getIntent().getExtras().get("ipBack");
             if(getIntent().getExtras().get("linesSize")!= null) {
                 linesToDestiny = (int) getIntent().getExtras().get("linesSize");
                 if (linesToDestiny > 0) {
@@ -205,12 +213,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     while (!isCancelled()) {
                         Log.i("BusesLocator: ", "Start doInBackground");
-                        String url = "http://" + serverIp + ":8080/backend/rest/busLines/lines/" + linesPath + "/buses";
+                        // String url = "http://" + serverIp + ":8080/backend/rest/busLines/lines/" + linesPath + "/buses";
+                        //TODO pass the real position
+                        double myLat = -34.706453;
+                        double myLng = -58.278560;
+                        String url = "http://" + serverIp + ":8080/backend/rest/busLines/closest/" + linesPath + "/lat/"+ myLat +"/lng/" + myLng;
                         Log.i("url locator: ", url);
                         JSONArray busArray;
                         try {
                             busArray = serviceManager.getListResource(url);
                             busesToAdd = busArray.length();
+                            busesUpdated = new ArrayList<>();
                             for (int i = 0; i < this.busesToAdd; i++) {
                                 JSONObject buses = busArray.getJSONObject(i);
                                 JSONObject position = buses.getJSONObject("position");
@@ -224,25 +237,26 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                 busToAdd.setLng(busLng);
                                 busToAdd.setDirectionOfTravel(dirOfTravel);
                                 busToAdd.setRouteWay(routeWay);
-                                this.busesUpdated.add(busToAdd);
+                                busesUpdated.add(busToAdd);
                                 Log.i("busPosition ", " - lat: " + busLat + " lng: " + busLng + " .DirOfTravel :" + dirOfTravel);
                             }
-                            try {
-                                Thread.sleep(3000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
                             publishProgress();
+                            Thread.sleep(3000);
                         } catch (Exception e) {
                             e.printStackTrace();
+                        }
+                        if(isCancelled()){
+                            break;
                         }
                     }
                 }
             }
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            else {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             return null;
         }
@@ -250,20 +264,21 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected void onProgressUpdate(Void... params) {
             googleMap.clear();
+            Log.i("Map cleared: ", "the map was cleared");
             if(busesUpdated != null && busesUpdated.size() > 0) {
-                for (int i = 0; i < this.busesUpdated.size(); i++) {
-                    LatLng newPos = new LatLng(this.busesUpdated.get(i).getLat(), this.busesUpdated.get(i).getLng());
+                for (int i = 0; i < busesUpdated.size(); i++) {
+                    LatLng newPos = new LatLng(busesUpdated.get(i).getLat(), busesUpdated.get(i).getLng());
                     MarkerOptions aBus = new MarkerOptions()
                             .position(newPos)
-                            .title(this.busesUpdated.get(i).getDirectionOfTravel());
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bus))
+                            .title(busesUpdated.get(i).getDirectionOfTravel());
                     googleMap.addMarker(aBus);
-                    if(this.busesUpdated.get(i).getDirectionOfTravel().equals("Once - Wilde")) {
-                        List<LatLng> routeCoordinates = PolyUtil.decode(this.busesUpdated.get(i).getRouteWay());
-                        PolylineOptions routePolyline = new PolylineOptions()
-                                .addAll(routeCoordinates)
-                                .clickable(false);
-                        googleMap.addPolyline(routePolyline);
-                    }
+                    List<LatLng> routeCoordinates = PolyUtil.decode(busesUpdated.get(i).getRouteWay());
+                    PolylineOptions routePolyline = new PolylineOptions()
+                            .addAll(routeCoordinates)
+                            .clickable(false);
+                    googleMap.addPolyline(routePolyline);
+                    Log.i("Bus added: ", "bus number " + i + " added");
                 }
             }
             else{
@@ -274,6 +289,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     .position(new LatLng(-34.706453, -58.278560));
             googleMap.addMarker(myPosition);
             Log.i("onProgressUpdate - ", "finish ");
+        }
+
+        @Override
+        protected void onCancelled() {
+            this.cancel(true);
         }
 
     }
