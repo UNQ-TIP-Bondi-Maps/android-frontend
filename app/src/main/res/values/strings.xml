@@ -7,4 +7,30 @@
     <string name="facebook_app_id">726182897537089</string>
     <string name="title_activity_login">Sign in</string>
     <string name="server_client_id">1018942519796-02nteb6qs9ac65114q0qa78p7s2lk0ua.apps.googleusercontent.com</string>
+    <string name="title_activity_settings">Configuración</string>
+    <string name="notification_distance_bus">Notificarme cuando el colectivo se encuentre a</string>
+    <string name="number_blocks">Distancia en cuadras</string>
+
+    <!-- Strings related to Settings -->
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notificaciones</string>
+
+    <string name="pref_title_new_message_notifications">Recibir notificaciones</string>
+
+    <string name="pref_distance_bus">Add friends to messages</string>
+    <string-array name="pref_example_distance_bus">
+        <item>5 cuadras</item>
+        <item>10 cuadras</item>
+        <item>15 cuadras</item>
+    </string-array>
+    <string-array name="pref_example_distance_bus_list_values">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+    </string-array>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrar</string>
 </resources>
