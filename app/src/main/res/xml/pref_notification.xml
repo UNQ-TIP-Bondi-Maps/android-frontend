@@ -8,7 +8,7 @@
         android:title="@string/pref_title_new_message_notifications" />
 
     <ListPreference
-        android:defaultValue="-1"
+        android:defaultValue="5"
         android:entries="@array/pref_example_distance_bus"
         android:entryValues="@array/pref_example_distance_bus_list_values"
         android:dependency="notifications_new_message"
