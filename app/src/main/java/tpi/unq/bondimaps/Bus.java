@@ -7,6 +7,11 @@ public class Bus{
     private String directionOfTravel;
     private String routeWay;
     private String routeBack;
+    private String timeToDestiny;
+
+    public String getTimeToDestiny() { return timeToDestiny; }
+
+    public void setTimeToDestiny(String timeToDestiny) { this.timeToDestiny = timeToDestiny; }
 
     public double getLat() {
         return lat;

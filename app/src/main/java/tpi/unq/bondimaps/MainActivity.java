@@ -37,6 +37,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import tpi.unq.bondimaps.model.CustomLatLng;
+import tpi.unq.bondimaps.util.NotificationGenerator;
+
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -213,7 +216,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     while (!isCancelled()) {
                         Log.i("BusesLocator: ", "Start doInBackground");
-                        // String url = "http://" + serverIp + ":8080/backend/rest/busLines/lines/" + linesPath + "/buses";
                         //TODO pass the real position
                         double myLat = -34.706453;
                         double myLng = -58.278560;
@@ -231,17 +233,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                 String routeWay = buses.getString("routeWay");
                                 double busLat = position.getDouble("lat");
                                 double busLng = position.getDouble("lng");
+                                String timeToDest = buses.getString("timeToDestinyGoogle");
 
                                 Bus busToAdd = new Bus();
                                 busToAdd.setLat(busLat);
                                 busToAdd.setLng(busLng);
                                 busToAdd.setDirectionOfTravel(dirOfTravel);
                                 busToAdd.setRouteWay(routeWay);
+                                busToAdd.setTimeToDestiny(timeToDest);
                                 busesUpdated.add(busToAdd);
                                 Log.i("busPosition ", " - lat: " + busLat + " lng: " + busLng + " .DirOfTravel :" + dirOfTravel);
                             }
                             publishProgress();
-                            Thread.sleep(3000);
+                            Thread.sleep(5000);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -253,7 +257,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
             else {
                 try {
-                    Thread.sleep(3000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -271,7 +275,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     MarkerOptions aBus = new MarkerOptions()
                             .position(newPos)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bus))
-                            .title(busesUpdated.get(i).getDirectionOfTravel());
+                            .title(busesUpdated.get(i).getDirectionOfTravel())
+                            .snippet(busesUpdated.get(i).getTimeToDestiny());
                     googleMap.addMarker(aBus);
                     List<LatLng> routeCoordinates = PolyUtil.decode(busesUpdated.get(i).getRouteWay());
                     PolylineOptions routePolyline = new PolylineOptions()
@@ -279,6 +284,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             .clickable(false);
                     googleMap.addPolyline(routePolyline);
                     Log.i("Bus added: ", "bus number " + i + " added");
+                    CustomLatLng customlocation =  new CustomLatLng(-34.706453, -58.278560);
+                    NotificationGenerator.launchNotification(MainActivity.this, customlocation, busesUpdated.get(i));
                 }
             }
             else{
